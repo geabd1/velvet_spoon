@@ -47,7 +47,7 @@ $boards_result = $boards_stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Velvet Spoon - My Account</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Slab:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
@@ -229,9 +229,9 @@ $boards_result = $boards_stmt->get_result();
                 </form>
             </li>
             <?php if(isset($_SESSION['username'])): ?>
-                <li class="active"><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
+                <li><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
             <?php else: ?>
-                <li><a href="login.html">Sign Up/In</a></li>
+                <li class='active'><a href="login.html">Sign Up/In</a></li>
             <?php endif; ?>
         </ul>
     </nav>
@@ -243,7 +243,7 @@ $boards_result = $boards_stmt->get_result();
         </div>
 
         <div class="account-nav">
-            <a href="accSettings.php">Account Settings</a>
+            <a href="accSetting.php">Account Settings</a>
             <a href="logout.php">Log Out</a>
         </div>
 

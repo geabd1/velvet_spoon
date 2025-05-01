@@ -16,7 +16,7 @@ $result = $conn->query($sql);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Slab:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Jacques+Francois+Shadow&family=Josefin+Slab:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav>
@@ -31,7 +31,7 @@ $result = $conn->query($sql);
                 </form>
             </li>
             <?php if(isset($_SESSION['username'])): ?>
-                <li><span style="color: white; font-size: 2.0rem;">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></span></li>
+                <li><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
             <?php else: ?>
                 <li><a href="login.html">Sign Up/In</a></li>
             <?php endif; ?>
