@@ -28,22 +28,23 @@ To run The Velvet Spoon locally, you'll need:
 
 ## 🚀 Installation & Setup
 
-1. **Clone the repository**:
-   ```bash
-   git clone [repository-url]
-2. Start MAMP:
+1. Clone the repository:
+   - Once on your device, it to your htdocs folder in MAMP
+   
+3. Start MAMP:
    - Launch MAMP application
    - Start the Apache and MySQL servers
 
-3. Import the database:
+4. Import the database:
    - Open phpMyAdmin via MAMP's WebStart page (Tools > PHPMyAdmin)
    - Navigate to the Import tab
    - Select the SQL file from the repository
    - Click "Go" to import
 
-4. Run the application:
+5. Run the application:
    - Access the site through MAMP's WebStart page
-   - Or navigate to: http://localhost:[port]/[vevet_sppon]/dashboard.php
+   - Or navigate to: http://localhost:[port]/vevet_sppon/dashboard.php
+       - To find the port number go to MAMP -> Preferences -> Ports (Apache)
 
 
 
