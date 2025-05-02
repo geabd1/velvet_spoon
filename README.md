@@ -2,19 +2,58 @@
 
 Figma Link https://www.figma.com/proto/bWbFg9KalfPvP7k6RNnahp/The-Velvet-Spoon-Prototype?node-id=42-110&starting-point-node-id=39%3A45&t=FjRqWG8DT9XVNZj9-1
 
-The Velvet Spoon is a web application intended to provide user with recipes that are easy to follow. Users are able to look at recipes on the account without having to create an account. If they do decide to create an account, they are able to comment, rate and save recipes to a board attached to their account. 
+The Velvet Spoon is a recipe web application designed to provide users with easy-to-follow cooking instructions. Browse recipes freely or create an account to unlock additional features like commenting, rating, and saving recipes to personalized boards.
 
-Features
+## ✨ Features
 
-How to work:
+- **Browse recipes** without an account
+- **Create an account** to unlock:
+  - Comment on recipes
+  - Rate recipes
+  - Save recipes to personal boards
+- **Detailed recipe pages** with:
+  - Ingredients lists
+  - Step-by-step instructions
+  - Preparation times
+  - Serving sizes
 
-You must have the following applications
-  - MAMP 
-  - an IDE to store your copy (I used VSCode)
-  - a working computer
+## 🛠️ System Requirements
 
-When you download the repo, open MAMP, start the server and open the WebStart. When the website opens, click "Tools" and click "PHPMyAdmin". Then go to the Import tab, click choose file and click on the SQL file from the repo. 
+To run The Velvet Spoon locally, you'll need:
 
-After this, go to this link: [paste link here later]. This should open the dashboard and you should be able to explore the site and its functions.
+- MAMP (or similar local server environment)
+- Code editor (VSCode recommended)
+- Modern web browser
+- MySQL database
 
-After
+## 🚀 Installation & Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone [repository-url]
+Start MAMP:
+Launch MAMP application
+Start the Apache and MySQL servers
+
+Import the database:
+Open phpMyAdmin via MAMP's WebStart page (Tools > PHPMyAdmin)
+Navigate to the Import tab
+Select the SQL file from the repository
+Click "Go" to import
+
+Run the application:
+Access the site through MAMP's WebStart page
+Or navigate to: http://localhost:[port]/[project-folder]
+
+
+
+### Key Improvements:
+
+1. **Better Visual Organization**:
+   - Added emojis for visual cues
+   - Clear section headers
+   - Better feature listing
+
+
+
+
