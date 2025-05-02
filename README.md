@@ -31,19 +31,19 @@ To run The Velvet Spoon locally, you'll need:
 1. **Clone the repository**:
    ```bash
    git clone [repository-url]
-Start MAMP:
-Launch MAMP application
-Start the Apache and MySQL servers
+2. Start MAMP:
+   - Launch MAMP application
+   - Start the Apache and MySQL servers
 
-Import the database:
-Open phpMyAdmin via MAMP's WebStart page (Tools > PHPMyAdmin)
-Navigate to the Import tab
-Select the SQL file from the repository
-Click "Go" to import
+3. Import the database:
+   - Open phpMyAdmin via MAMP's WebStart page (Tools > PHPMyAdmin)
+   - Navigate to the Import tab
+   - Select the SQL file from the repository
+   - Click "Go" to import
 
-Run the application:
-Access the site through MAMP's WebStart page
-Or navigate to: http://localhost:[port]/[project-folder]
+4. Run the application:
+   - Access the site through MAMP's WebStart page
+   - Or navigate to: http://localhost:[port]/[vevet_sppon]/dashboard.php
 
 
 
