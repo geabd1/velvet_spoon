@@ -4,7 +4,7 @@ Figma Link https://www.figma.com/proto/bWbFg9KalfPvP7k6RNnahp/The-Velvet-Spoon-P
 
 The Velvet Spoon is a recipe web application designed to provide users with easy-to-follow cooking instructions. Browse recipes freely or create an account to unlock additional features like commenting, rating, and saving recipes to personalized boards.
 
-##Languages Used
+## Languages Used
   - PHP
   - HTML
   - CSS
