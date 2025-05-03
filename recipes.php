@@ -21,6 +21,10 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="styles.css">
     <style>
         /* Add this new style to make the entire card clickable */
+        .recipes-header{
+            text-align:center; 
+            font-size: 1.7rem;
+        }
         .recipe-card-link {
             display: block;
             text-decoration: none;
@@ -52,7 +56,7 @@ $result = $conn->query($sql);
             <?php if(isset($_SESSION['username'])): ?>
                 <li><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
             <?php else: ?>
-                <li><a href="login.html">Sign Up/In</a></li>
+                <li><a href="login.php">Sign Up/In</a></li>
             <?php endif; ?>
         </ul>
     </nav>

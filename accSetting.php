@@ -19,40 +19,30 @@ $stmt->close();
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['change_name'])) {
-        $first_name = trim($_POST['first_name']);
-        $last_name = trim($_POST['last_name']);
-        
-        $stmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $first_name, $last_name, $user_id);
-        if ($stmt->execute()) {
-            $_SESSION['success'] = "Name updated successfully!";
-        } else {
-            $_SESSION['error'] = "Error updating name.";
-        }
-        $stmt->close();
-        header("Location: accSettings.php");
-        exit();
-    }
-    
     if (isset($_POST['change_username'])) {
         $username = trim($_POST['username']);
         
         // Check if username exists
-        $check = $pdo->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
-        $check->execute([$username, $user_id]);
-        if ($check->fetch()) {
+        $check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+        $check_stmt->bind_param("si", $username, $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
             $_SESSION['error'] = "Username already taken.";
         } else {
-            $stmt = $pdo->prepare("UPDATE users SET username = ? WHERE id = ?");
-            if ($stmt->execute([$username, $user_id])) {
+            $stmt = $conn->prepare("UPDATE users SET username = ? WHERE id = ?");
+            $stmt->bind_param("si", $username, $user_id);
+            if ($stmt->execute()) {
                 $_SESSION['username'] = $username;
                 $_SESSION['success'] = "Username updated successfully!";
             } else {
                 $_SESSION['error'] = "Error updating username.";
             }
+            $stmt->close();
         }
-        header("Location: accSettings.php");
+        $check_stmt->close();
+        header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
     
@@ -60,19 +50,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email']);
         
         // Check if email exists
-        $check = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-        $check->execute([$email, $user_id]);
-        if ($check->fetch()) {
+        $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $check_stmt->bind_param("si", $email, $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
             $_SESSION['error'] = "Email already in use.";
         } else {
-            $stmt = $pdo->prepare("UPDATE users SET email = ? WHERE id = ?");
-            if ($stmt->execute([$email, $user_id])) {
+            $stmt = $conn->prepare("UPDATE users SET email = ? WHERE id = ?");
+            $stmt->bind_param("si", $email, $user_id);
+            if ($stmt->execute()) {
                 $_SESSION['success'] = "Email updated successfully!";
             } else {
                 $_SESSION['error'] = "Error updating email.";
             }
+            $stmt->close();
         }
-        header("Location: accSettings.php");
+        $check_stmt->close();
+        header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
     
@@ -83,20 +79,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (password_verify($current_password, $user['password'])) {
             if ($new_password === $confirm_password) {
-                $hashed = password_hash($new_password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-                if ($stmt->execute([$hashed, $user_id])) {
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $stmt->bind_param("si", $hashed_password, $user_id);
+                if ($stmt->execute()) {
                     $_SESSION['success'] = "Password updated successfully!";
                 } else {
                     $_SESSION['error'] = "Error updating password.";
                 }
+                $stmt->close();
             } else {
                 $_SESSION['error'] = "New passwords don't match.";
             }
         } else {
             $_SESSION['error'] = "Current password is incorrect.";
         }
-        header("Location: accSettings.php");
+        header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
 }
@@ -114,7 +112,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Jacques+Francois+Shadow&family=Josefin+Slab:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Original styles from first implementation */
         .account-settings-container {
             max-width: 800px;
             margin: 2rem auto;
@@ -208,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 1.2rem;
         }
 
-        /* New modal styles */
+        /* Modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -303,7 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if(isset($_SESSION['username'])): ?>
                 <li><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
             <?php else: ?>
-                <li><a href="login.html">Sign Up/In</a></li>
+                <li><a href="login.php">Sign Up/In</a></li>
             <?php endif; ?>
         </ul>
     </nav>
@@ -321,13 +318,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if(isset($_SESSION['error'])): ?>
             <div class="message error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
         <?php endif; ?>
-
-       
-        <div class="setting-item">
-            <div class="setting-label">Name:</div>
-            <div class="setting-value"><?php echo htmlspecialchars($user['name']); ?></div>
-            <a href="#" class="setting-action" onclick="openModal('nameModal')">Change Name</a>
-        </div>
 
         <div class="setting-item">
             <div class="setting-label">Username</div>
@@ -352,23 +342,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="footer-motto">Embrace the art of flavor</p>
     </div>
 
-    <!-- Name Change Modal -->
-    <div id="nameModal" class="modal">
-        <div class="modal-content">
-            <h3>Change Your Name</h3>
-            <form method="POST" action=" ">
-                <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
-                <button type="submit" name="change_name">Update Name</button>
-            </form>
-        </div>
-    </div>
-
     <!-- Username Change Modal -->
     <div id="usernameModal" class="modal">
         <div class="modal-content">
             <h3>Change Your Username</h3>
             <p class="hint">Choose a unique username</p>
-            <form method="POST" action="accSettings.php">
+            <form method="POST" action="">
                 <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
                 <button type="submit" name="change_username">Update Username</button>
             </form>
@@ -380,7 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="modal-content">
             <h3>Change Your Email</h3>
             <p class="hint">We'll send a verification email</p>
-            <form method="POST" action="accSettings.php">
+            <form method="POST" action="">
                 <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 <button type="submit" name="change_email">Update Email</button>
             </form>
@@ -391,7 +370,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div id="passwordModal" class="modal">
         <div class="modal-content">
             <h3>Change Your Password</h3>
-            <form method="POST" action="accSettings.php">
+            <form method="POST" action="">
                 <input type="password" name="current_password" placeholder="Current Password" required>
                 <input type="password" name="new_password" placeholder="New Password" required>
                 <input type="password" name="confirm_password" placeholder="Confirm New Password" required>

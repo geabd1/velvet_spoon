@@ -2,8 +2,7 @@
 session_start();
 include 'db.php';
 
-// Fetch all recipes from homepage_recipes table
-$sql = "SELECT * FROM homepage_recipes ORDER BY created_at DESC LIMIT 3";
+$sql = "SELECT * FROM recipes ORDER BY created_at DESC LIMIT 3";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -33,7 +32,7 @@ $result = $conn->query($sql);
             <?php if(isset($_SESSION['username'])): ?>
                 <li><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
             <?php else: ?>
-                <li><a href="login.html">Sign Up/In</a></li>
+                <li><a href="login.php">Sign Up/In</a></li>
             <?php endif; ?>
         </ul>
     </nav>

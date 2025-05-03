@@ -44,6 +44,36 @@ if ($recipe_id > 0) {
     $stmt->close();
 }
 
+// Handle rating submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_rating']) && isset($_SESSION['user_id'])) {
+    $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
+    $user_id = $_SESSION['user_id'];
+    
+    if ($rating >= 1 && $rating <= 5) {
+        // Get current rating values
+        $current_rating = $recipe['rating'];
+        $current_count = $recipe['rating_count'];
+        
+        // Calculate new average
+        $new_count = $current_count + 1;
+        $new_rating = (($current_rating * $current_count) + $rating) / $new_count;
+        
+        // Round to 1 decimal place
+        $new_rating = round($new_rating, 1);
+        
+        // Update recipe with new rating
+        $stmt = $conn->prepare("UPDATE recipes SET rating = ?, rating_count = ? WHERE id = ?");
+        $stmt->bind_param("dii", $new_rating, $new_count, $recipe_id);
+        $stmt->execute();
+        $stmt->close();
+        
+        // Refresh to show updated rating
+        $_SESSION['rating_success'] = "Thank you for your rating!";
+        header("Location: recipe.php?id=$recipe_id");
+        exit();
+    }
+}
+
 // Handle comment submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_comment']) && isset($_SESSION['user_id'])) {
     $comment = trim($_POST['comment']);
@@ -55,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_comment']) && is
         $stmt->execute();
         $stmt->close();
         
-        // Refresh to show new comment
         header("Location: recipe.php?id=$recipe_id");
         exit();
     }
@@ -111,19 +140,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
             margin: 2rem auto;
             padding: 0 1rem;
         }
-        
+
         .recipe-header {
             text-align: center;
             margin-bottom: 2rem;
         }
-        
+
         .recipe-title {
             font-family: 'Jacques Francois Shadow', serif;
             color: #902C3E;
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
         }
-        
+
         .recipe-meta {
             display: flex;
             justify-content: center;
@@ -131,15 +160,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
             color: #666;
             margin-bottom: 1rem;
         }
-        
+
+        /* Updated image styles */
+        .image-container {
+            width: 100%;
+            margin: 0 auto 2rem;
+        }
+
         .recipe-image {
             width: 100%;
-            max-height: 500px;
+            height: 550px; /* Fixed height for square */
             object-fit: cover;
             border-radius: 8px;
-            margin-bottom: 2rem;
+            aspect-ratio: 1/1; /* Ensures perfect square */
         }
-        
+
+        /* Fallback for older browsers */
+        @supports not (aspect-ratio: 1/1) {
+            .image-container {
+                position: relative;
+                padding-bottom: 100%; /* Creates square based on width */
+                height: 0;
+            }
+            .recipe-image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        /* [Rest of your existing CSS remains unchanged] */
         .recipe-description {
             font-size: 1.1rem;
             line-height: 1.6;
@@ -172,6 +224,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
             font-weight: bold;
             color: #902C3E;
             margin-right: 0.5rem;
+        }
+        
+        /* Rating Section */
+        .rating-section {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .star {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+            margin: 0 5px;
+        }
+        
+        .star:hover,
+        .star.active {
+            color: #ffc107;
+        }
+        
+        .average-rating {
+            font-size: 1.1rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+        
+        .success-message {
+            color: #28a745;
+            margin-top: 0.5rem;
         }
         
         /* Comments Section */
@@ -289,7 +377,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
             <?php if(isset($_SESSION['username'])): ?>
                 <li><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
             <?php else: ?>
-                <li><a href="login.html">Sign Up/In</a></li>
+                <li><a href="login.php">Sign Up/In</a></li>
             <?php endif; ?>
         </ul>
     </nav>
@@ -302,7 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
                     <span>Prep: <?php echo $recipe['prep_time']; ?> mins</span>
                     <span>Cook: <?php echo $recipe['cook_time']; ?> mins</span>
                     <span>Servings: <?php echo $recipe['servings']; ?></span>
-                    <span>Rating: <?php echo $recipe['rating']; ?>/5 (<?php echo $recipe['rating_count']; ?>)</span>
+                    <span>Rating: <?php echo number_format($recipe['rating'], 1); ?>/5 (<?php echo $recipe['rating_count']; ?>)</span>
                 </div>
                 <?php if(isset($_SESSION['user_id'])): ?>
                     <button class="save-recipe" onclick="openSaveModal()">Save Recipe</button>
@@ -343,6 +431,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
                 </ol>
             </div>
             
+            <!-- Rating Section -->
+            <div class="rating-section">
+                <h2 class="section-title">Rate This Recipe</h2>
+                
+                <?php if(isset($_SESSION['user_id'])): ?>
+                    <form method="POST" class="rating-form">
+                        <div class="stars">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <span class="star" data-value="<?php echo $i; ?>">★</span>
+                            <?php endfor; ?>
+                            <input type="hidden" name="rating" id="rating-value" value="">
+                        </div>
+                        <button type="submit" name="submit_rating" class="save-recipe">Submit Rating</button>
+                        
+                        <?php if(isset($_SESSION['rating_success'])): ?>
+                            <p class="success-message"><?php echo $_SESSION['rating_success']; ?></p>
+                            <?php unset($_SESSION['rating_success']); ?>
+                        <?php endif; ?>
+                    </form>
+                <?php else: ?>
+                    <p><a href="login.php">Log in</a> to rate this recipe</p>
+                <?php endif; ?>
+                
+                <div class="average-rating">
+                    Current average: <?php echo number_format($recipe['rating'], 1); ?> stars (from <?php echo $recipe['rating_count']; ?> ratings)
+                </div>
+            </div>
+            
             <div class="comments-section">
                 <h2 class="section-title">Comments</h2>
                 
@@ -364,7 +480,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
                         <button type="submit" name="post_comment" class="save-recipe">Post Comment</button>
                     </form>
                 <?php else: ?>
-                    <p><a href="login.html">Log in</a> to leave a comment</p>
+                    <p><a href="login.php">Log in</a> to leave a comment</p>
                 <?php endif; ?>
             </div>
             
@@ -390,11 +506,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
                                     <?php foreach ($boards as $board): ?>
                                         <li class="board-item" onclick="selectBoard(<?php echo $board['id']; ?>)">
                                             <?php echo htmlspecialchars($board['name']); ?>
-                                            <input type="radio" name="board_id" value="<?php echo $board['id']; ?>" style="display: none;">
+                                            <input type="radio" name="board_id" value="<?php echo $board['id']; ?>" required style="display: none;">
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
-                                <button type="submit" name="save_to_board" class="save-recipe">Save</button>
+                                <button type="submit" name="save_to_board" class="save-recipe">Save Recipe</button>
                             </form>
                         <?php else: ?>
                             <p>You don't have any boards yet. <a href="account.php">Create one</a> first.</p>
@@ -405,6 +521,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
             </div>
             
             <script>
+                // Save to board modal functions
                 function openSaveModal() {
                     document.getElementById('saveModal').style.display = 'flex';
                 }
@@ -414,8 +531,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_to_board']) && i
                 }
                 
                 function selectBoard(boardId) {
+                    document.querySelectorAll('.board-item').forEach(item => {
+                        item.style.background = 'transparent';
+                    });
+                    event.currentTarget.style.background = '#f0f0f0';
                     document.querySelector(`input[value="${boardId}"]`).checked = true;
                 }
+                
+                // Star rating functionality
+                document.querySelectorAll('.star').forEach(star => {
+                    star.addEventListener('click', function() {
+                        const value = this.getAttribute('data-value');
+                        document.getElementById('rating-value').value = value;
+                        
+                        // Highlight selected stars
+                        document.querySelectorAll('.star').forEach(s => {
+                            s.classList.remove('active');
+                            if (s.getAttribute('data-value') <= value) {
+                                s.classList.add('active');
+                            }
+                        });
+                    });
+                    
+                    star.addEventListener('mouseover', function() {
+                        const value = this.getAttribute('data-value');
+                        document.querySelectorAll('.star').forEach(s => {
+                            if (s.getAttribute('data-value') <= value) {
+                                s.style.color = '#ffc107';
+                            }
+                        });
+                    });
+                    
+                    star.addEventListener('mouseout', function() {
+                        const selectedValue = document.getElementById('rating-value').value;
+                        document.querySelectorAll('.star').forEach(s => {
+                            s.style.color = '#ddd';
+                            if (selectedValue && s.getAttribute('data-value') <= selectedValue) {
+                                s.style.color = '#ffc107';
+                            }
+                        });
+                    });
+                });
+                
+                // Auto-close modal after save if there are messages
+                <?php if(isset($_SESSION['success']) || isset($_SESSION['error'])): ?>
+                    closeSaveModal();
+                <?php endif; ?>
                 
                 // Close modal when clicking outside
                 window.onclick = function(event) {

@@ -2,8 +2,7 @@
 session_start();
 include 'db.php';
 
-// Fetch all recipes from homepage_recipes table
-$sql = "SELECT * FROM homepage_recipes ORDER BY created_at DESC LIMIT 3";
+$sql = "SELECT * FROM recipes ORDER BY created_at DESC LIMIT 3";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -17,6 +16,21 @@ $result = $conn->query($sql);
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Slab:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Jacques+Francois+Shadow&family=Josefin+Slab:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .recipe-card {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .recipe-card:hover {
+            transform: translateY(-5px);
+        }
+        .recipe-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -33,7 +47,7 @@ $result = $conn->query($sql);
             <?php if(isset($_SESSION['username'])): ?>
                 <li><a href="account.php" class="username-link">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
             <?php else: ?>
-                <li><a href="login.html">Sign Up/In</a></li>
+                <li><a href="login.php">Sign Up/In</a></li>
             <?php endif; ?>
         </ul>
     </nav>
@@ -50,17 +64,19 @@ $result = $conn->query($sql);
             <div class="recipe-grid">
                 <?php if ($result->num_rows > 0): ?>
                     <?php while($recipe = $result->fetch_assoc()): ?>
-                    <div class="recipe-card">
-                        <img src="<?php echo htmlspecialchars($recipe['image_path']); ?>" alt="<?php echo htmlspecialchars($recipe['title']); ?>" class="recipe-image">
-                        <div class="recipe-info">
-                            <h3 class="recipe-title"><?php echo htmlspecialchars($recipe['title']); ?></h3>
-                            <p class="recipe-category"><?php echo htmlspecialchars($recipe['category']); ?></p>
-                            <p class="recipe-description"><?php echo htmlspecialchars($recipe['description']); ?></p>
-                            <div class="recipe-meta">
-                                <span><?php echo ($recipe['prep_time'] + $recipe['cook_time']); ?> mins</span>
-                                <span>Servings: <?php echo $recipe['servings']; ?></span>
+                    <div class="recipe-card" onclick="window.location.href='recipe.php?id=<?php echo $recipe['id']; ?>'">
+                        <a href="recipe.php?id=<?php echo $recipe['id']; ?>">
+                            <img src="<?php echo htmlspecialchars($recipe['image_path']); ?>" alt="<?php echo htmlspecialchars($recipe['title']); ?>" class="recipe-image">
+                            <div class="recipe-info">
+                                <h3 class="recipe-title"><?php echo htmlspecialchars($recipe['title']); ?></h3>
+                                <p class="recipe-category"><?php echo htmlspecialchars($recipe['category']); ?></p>
+                                <p class="recipe-description"><?php echo htmlspecialchars($recipe['description']); ?></p>
+                                <div class="recipe-meta">
+                                    <span><?php echo ($recipe['prep_time'] + $recipe['cook_time']); ?> mins</span>
+                                    <span>Servings: <?php echo $recipe['servings']; ?></span>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                     <?php endwhile; ?>
                 <?php else: ?>
