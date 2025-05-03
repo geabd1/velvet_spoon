@@ -60,7 +60,10 @@ To run The Velvet Spoon locally, you'll need:
    - Added emojis for visual cues
    - Clear section headers
    - Better feature listing
+   - More photos on recipes
 
 
-
+![image](https://github.com/user-attachments/assets/4c8b7996-3f44-4b18-bdcf-99ad9c16e5d3)
+![image](https://github.com/user-attachments/assets/4c497856-aa0b-4892-b1dc-d1a5bec3c7a2)
+![image](https://github.com/user-attachments/assets/38f0f32f-6616-40f6-a58b-d9e5835ae350)
 
