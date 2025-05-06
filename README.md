@@ -35,7 +35,7 @@ To run The Velvet Spoon locally, you'll need:
 ## 🚀 Installation & Setup
 
 1. Clone the repository:
-   - Once on your device, it to your htdocs folder in MAMP
+   - Once on your device, place it to your htdocs folder in MAMP
    
 3. Start MAMP:
    - Launch MAMP application
